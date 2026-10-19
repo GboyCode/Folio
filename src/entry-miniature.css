@@ -1,0 +1,27 @@
+/* Small versions of the collection's card, SIM and residential address motifs. */
+.entry-miniature { position: relative; display: block; flex: 0 0 66px; width: 66px; height: 44px; color: #92969f; transition: transform 220ms var(--motion-ease); }
+.entry-mini-face { position: absolute; inset: 0; display: block; overflow: hidden; border: 1px solid #d7d9df; border-radius: 6px; background: linear-gradient(145deg,#fff,#f3f4f6); box-shadow: 0 2px 3px #20232a08; }
+.entry-mini-chip { --mini-chip-fill: #f2f2ef; position: absolute; left: 8px; top: 12px; width: 20px; height: 16px; stroke: #b2b3ac; stroke-width: 1; }
+.entry-mini-country { position: absolute; right: 7px; top: 6px; opacity: .8; }
+.entry-miniature .country-flag, .entry-miniature .country-flag img { display: block; width: 13px; height: 10px; border-radius: 1px; }
+.entry-miniature .country-flag svg { width: 13px; height: 10px; }
+.entry-mini-payment-lines { position: absolute; inset: 0; width: 100%; height: 100%; stroke: #b7bbc3; stroke-width: 1; }
+.entry-miniature--bank:not(.has-artwork) .entry-mini-face::before { content: ''; position: absolute; top: 7px; left: 0; right: 28px; border-top: 3px solid #e2e4e9; }
+.entry-miniature--crypto:not(.has-artwork)::before { content: ''; position: absolute; inset: -3px 3px 3px; border: 1px solid #d5d7dd; border-radius: 6px; background: #f8f8fa; transform: rotate(7deg); }
+.entry-mini-face.entry-mini-artwork { overflow: visible; border: 0; border-radius: 0; background: transparent; box-shadow: none; }
+.entry-mini-artwork > img { display: block; width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 2px 2px #20232a18); }
+.entry-mini-u { position: absolute; left: 6px; top: 5px; width: 24px; height: 24px; stroke: #969ba7; stroke-width: 1; }
+.entry-mini-u path { stroke-width: 1.4; }
+.entry-miniature--sim { filter: drop-shadow(0 2px 2px #20232a0c); }
+.entry-miniature--sim .entry-mini-face { border: 0; border-radius: 5px; clip-path: polygon(0 0,100% 0,100% calc(100% - 12px),calc(100% - 12px) 100%,0 100%); background: #f1f3f4; box-shadow: inset 0 0 0 1px #24293312; }
+.entry-mini-flag-art { position: absolute; inset: 0; background: linear-gradient(180deg,#ffffff18,#fafbf8 95%),var(--mini-flag,linear-gradient(145deg,#e3e7ed,#f7f8f9)) center / cover; opacity: .7; }
+.entry-miniature--sim .entry-mini-chip { --mini-chip-fill: #e8d8ad; width: 25px; height: 20px; left: 9px; top: 17px; stroke: #ac9565; }
+.entry-mini-signal { position: absolute; top: 7px; right: 8px; width: 11px; height: 9px; stroke: #656f80; stroke-width: 1.2; stroke-linecap: round; }
+.entry-miniature--address .entry-mini-face { background: #f4f6f5; border-color: #dce0e2; box-shadow: 0 2px 3px #20232a10; }
+.entry-mini-address-photo { display: block; width: 100%; height: 100%; object-fit: cover; }
+.entry-mini-address-marker { position: absolute; left: calc(50% - 5px); top: calc(50% - 5px); width: 10px; height: 10px; fill: #34383e; stroke: #fff; filter: drop-shadow(0 1px 2px #0003); }
+.entry-miniature--address .entry-mini-country { top: 3px; right: 3px; padding: 1px; border-radius: 2px; background: #fff; opacity: 1; }
+@media (hover: hover) and (pointer: fine) {
+  :is(.globe-region-record,.map-popover-record):hover .entry-miniature { transform: translateY(-2px) rotate(-3deg); }
+}
+@media (prefers-reduced-motion: reduce) { .entry-miniature { transition: none; } :is(.globe-region-record,.map-popover-record):hover .entry-miniature { transform: none; } }

@@ -1,0 +1,125 @@
+.wallet-overview {
+  container: wallet-overview / inline-size;
+  margin-bottom: 28px;
+}
+
+.overview-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.overview-card {
+  --overview-ink: var(--muted-foreground);
+  position: relative;
+  isolation: isolate;
+  min-width: 0;
+  min-height: 120px;
+  padding: 17px 18px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: transparent;
+  color: var(--foreground);
+  text-align: left;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  transition: transform 200ms var(--motion-ease), box-shadow 200ms ease, border-color 200ms ease;
+}
+
+.overview-label {
+  display: block;
+  padding-right: 18px;
+  font-size: var(--text-body);
+  line-height: var(--leading-body);
+  font-weight: 500;
+}
+
+.overview-total {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 0 7px;
+  width: fit-content;
+  max-width: calc(100% - 72px);
+  position: relative;
+  z-index: 1;
+  margin-top: 16px;
+}
+
+.overview-total strong {
+  font-size: var(--text-page);
+  line-height: var(--leading-page);
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+}
+
+.overview-total > span {
+  flex-shrink: 0;
+  color: var(--muted-foreground);
+  font-size: var(--text-caption);
+  line-height: var(--leading-caption);
+}
+
+.overview-arrow {
+  position: absolute;
+  top: 20px;
+  right: 16px;
+  color: var(--overview-ink);
+  transition: transform 200ms var(--motion-ease);
+}
+
+.overview-illustration {
+  position: absolute;
+  right: 16px;
+  bottom: 10px;
+  width: 86px;
+  height: 68px;
+  color: var(--overview-ink);
+  pointer-events: none;
+  transition: transform 250ms var(--motion-ease);
+}
+
+.overview-object, .overview-object-back {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.2;
+  stroke-opacity: .55;
+}
+
+.overview-detail { stroke: currentColor; stroke-width: 1; stroke-opacity: .55; stroke-linecap: round; }
+.overview-chip { fill: none; stroke: currentColor; stroke-opacity: .5; }
+.overview-emblem { stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; }
+.overview-map { stroke-opacity: .65; transform: rotate(-8deg); }
+
+@media (hover: hover) {
+  .overview-card:hover {
+    transform: translateY(-3px);
+    border-color: var(--overview-ink);
+    box-shadow: 0 5px 14px rgb(28 28 30 / 6%);
+  }
+  .overview-card:hover .overview-illustration { transform: translateY(-2px) rotate(5deg); }
+  .overview-card:hover .overview-arrow { transform: translate(2px, -2px); }
+}
+
+.overview-card:active, .overview-card[data-pressed] { transform: scale(.98); transition-duration: 110ms; }
+.overview-card:focus-visible { outline: 2px solid var(--overview-ink); outline-offset: 3px; }
+
+@container wallet-overview (max-width: 760px) {
+  .overview-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@container wallet-overview (max-width: 380px) {
+  .overview-grid { gap: 10px; }
+  .overview-card { min-height: 112px; padding: 14px; }
+  .overview-arrow { right: 12px; top: 18px; width: 13px; }
+  .overview-illustration { right: 7px; bottom: 9px; width: 65px; height: 52px; }
+  .overview-total { margin-top: 16px; gap: 5px; max-width: calc(100% - 52px); }
+  .overview-total > span { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .overview-card, .overview-illustration, .overview-arrow { transition: none; }
+  .overview-card:hover, .overview-card:active, .overview-card[data-pressed],
+  .overview-card:hover .overview-illustration, .overview-card:hover .overview-arrow { transform: none; }
+}

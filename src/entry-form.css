@@ -1,0 +1,71 @@
+/* One stable frame for all four entry types; only the field area scrolls. */
+.modal.entry-form-modal {
+  width: 860px;
+  height: min(720px, calc(100dvh - 48px));
+  max-height: calc(100dvh - 48px);
+}
+.entry-form-modal .modal-inner { flex: 1; }
+.entry-form-modal .modal-head { padding: 17px 20px; align-items: center; }
+.entry-form-modal .modal-head > button { margin: 0; }
+.entry-form-modal .modal-body { display: flex; flex: 1; overflow: hidden; }
+.entry-editor { display: flex; flex-direction: column; width: 100%; min-width: 0; min-height: 0; }
+.entry-editor .type-picker { flex: 0 0 auto; flex-wrap: nowrap; padding: 14px 20px; gap: 8px; }
+.entry-editor .type-picker > button { min-width: 0; flex: 1; flex-direction: row; gap: 6px; padding: 7px 6px !important; }
+.entry-form-scroll { flex: 1; min-height: 0; overflow-y: auto; overflow-x: hidden; overscroll-behavior: contain; scrollbar-gutter: stable; }
+.entry-form-layout { display: grid; grid-template-columns: 216px minmax(0, 1fr); gap: 22px; align-items: start; padding: 4px 20px 20px; }
+.entry-preview { min-width: 0; }
+.entry-preview-label { display: block; margin-bottom: 12px; font-size: 12px; line-height: 20px; color: var(--muted-foreground); }
+.entry-preview-art > :is(.card-art, .sim-face, .address-home-face) { width: 100%; }
+.entry-art-controls { display: grid; grid-template-columns: 1fr; gap: 8px; margin-top: 16px; }
+.entry-art-controls > button { width: 100%; }
+.entry-upload { position: relative; display: flex; justify-content: center; align-items: center; gap: 6px; height: 34px; border-radius: 6px; color: var(--muted-foreground); font-size: 14px; cursor: pointer; }
+.entry-upload:hover { background: var(--muted); color: var(--foreground); }
+.entry-upload:has(input:focus-visible) { outline: 2px solid var(--ring); outline-offset: 2px; }
+.entry-upload input[type=file] { display: block; position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; }
+.entry-art-controls .color-field { margin: 4px 0 0; padding: 0 8px; }
+.entry-fields.form-fields { grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 12px; align-content: start; min-width: 0; }
+.entry-fields .entry-field { min-width: 0; font-weight: 400; }
+.entry-fields .span-3 { grid-column: span 3; }
+.entry-fields .span-4 { grid-column: span 4; }
+.entry-fields .span-5 { grid-column: span 5; }
+.entry-fields .span-6 { grid-column: span 6; }
+.entry-fields .span-8 { grid-column: span 8; }
+.entry-fields .span-12 { grid-column: 1 / -1; }
+.entry-fields :is(input, select, textarea) { margin-top: 4px; min-width: 0; }
+.entry-fields :is(input, select) { height: 36px; }
+.entry-fields textarea { min-height: 62px; height: 62px; max-height: 160px; line-height: 22px; }
+.entry-fields .address-paste > summary { padding: 8px 10px; }
+.entry-fields .address-paste-body { padding: 0 10px 10px; }
+.entry-fields .address-paste textarea { min-height: 88px; height: 88px; max-height: 200px; }
+.entry-form-error.error-message { flex-shrink: 0; margin: 0; padding: 9px 20px; border-radius: 0; }
+.entry-form-actions.modal-actions { flex: 0 0 auto; gap: 8px; padding: 12px 20px; }
+.entry-favorite { display: inline-flex; align-items: center; gap: 7px; margin-right: auto; font-size: 14px; line-height: 22px; cursor: pointer; }
+.entry-favorite input { width: 14px; height: 14px; margin: 0; }
+.entry-form-actions > button { min-width: 72px; }
+.entry-editor .inline-art-picker { padding: 0 20px 20px; }
+.entry-editor .inline-art-picker .art-options { max-height: none; }
+@media (max-width: 760px) {
+  .modal.entry-form-modal { width: calc(100vw - 24px); height: min(720px, calc(100dvh - 24px)); max-height: calc(100dvh - 24px); }
+  .entry-form-layout { grid-template-columns: minmax(0, 1fr); gap: 14px; }
+  .entry-preview-art { display: none; }
+  .entry-preview.automatic-preview { display: none; }
+  .entry-art-controls { display: flex; align-items: center; flex-wrap: wrap; gap: 8px 12px; margin: 0; }
+  .entry-art-controls > button { width: auto; }
+  .entry-upload { padding: 0 8px; }
+  .entry-art-controls .color-field { gap: 8px; margin: 0 0 0 auto; padding: 0; }
+}
+@media (max-width: 640px) {
+  .entry-form-modal .modal-head { padding: 12px 14px; }
+  .entry-editor .type-picker { padding: 10px 14px; gap: 6px; }
+  .entry-editor .type-picker > button { flex-direction: column; min-height: 50px; gap: 3px; padding: 5px 2px !important; font-size: 12px; line-height: 18px; }
+  .entry-form-layout { padding: 4px 14px 16px; }
+  .entry-fields.form-fields { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+  .entry-fields .entry-field { grid-column: 1 / -1; }
+  .entry-fields :is(.field-expiry, .field-currency, .field-network, .field-subtype, .field-city, .field-region) { grid-column: span 1; }
+  .entry-fields :is(input, select) { height: 42px; font-size: 16px; }
+  .entry-fields textarea { font-size: 16px; }
+  .entry-form-actions.modal-actions { padding: 10px 14px max(10px, env(safe-area-inset-bottom)); }
+  .entry-form-actions > button { min-height: 40px; min-width: 64px; }
+  .entry-form-error.error-message { padding: 8px 14px; }
+  .entry-editor .inline-art-picker { padding: 0 14px 16px; }
+}

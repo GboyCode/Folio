@@ -1,0 +1,14 @@
+.desktop-directory .settings-row > div:nth-child(2) { flex: 1; }
+.desktop-path { display: flex; align-items: center; gap: 16px; margin-top: 18px; padding: 12px 14px; border: 1px solid var(--border); border-radius: 8px; background: var(--muted); }
+.desktop-path code { flex: 1; min-width: 0; overflow-wrap: anywhere; font-size: 12px; }
+.desktop-path .text-link { flex-shrink: 0; }
+.desktop-path-choice { display: block; overflow-wrap: anywhere; padding: 14px; background: var(--muted); border-radius: 8px; font-size: 12px; }
+.desktop-app .topbar { position: sticky; top: 0; z-index: 35; padding-right: 164px; border-bottom: 0; user-select: none; }
+.desktop-app .sidebar-brand { user-select: none; }
+.desktop-window-controls { position: fixed; top: 10px; right: 10px; height: 38px; display: flex; align-items: center; z-index: 110; background: var(--background); }
+.desktop-window-controls button { width: 44px; height: 38px; display: inline-flex; align-items: center; justify-content: center; padding: 0; border: 0; border-radius: 6px; background: transparent; color: var(--muted-foreground); transition: background-color .15s, color .15s; }
+.desktop-window-controls button:hover { background: var(--accent); color: var(--foreground); }
+.desktop-window-controls .desktop-window-close:hover { background: #e81123; color: white; }
+.desktop-window-controls button:focus-visible { outline-offset: -3px; }
+.desktop-drag-fallback { display: none; }
+.desktop-app:not(:has(.topbar)) .desktop-drag-fallback { display: block; position: fixed; top: 0; left: 0; right: 142px; height: 58px; z-index: 100; user-select: none; }

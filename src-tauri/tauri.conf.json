@@ -1,0 +1,51 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "Folio",
+  "version": "0.1.9",
+  "identifier": "me.ryanlin.folio",
+  "build": {
+    "beforeDevCommand": "npm run dev -- --mode desktop",
+    "devUrl": "http://localhost:5173",
+    "beforeBuildCommand": "npm run desktop:frontend",
+    "frontendDist": "../dist-desktop"
+  },
+  "app": {
+    "windows": [{
+      "label": "main",
+      "create": false,
+      "title": "Folio · 本地版",
+      "decorations": false,
+      "width": 1360,
+      "height": 900,
+      "minWidth": 900,
+      "minHeight": 640,
+      "center": true,
+      "backgroundColor": "#fafafa",
+      "useHttpsScheme": true,
+      "dragDropEnabled": false
+    }],
+    "security": {
+      "csp": "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' ipc: http://ipc.localhost https://ipc.localhost; object-src 'none'; base-uri 'self'; form-action 'none'; frame-src 'none'",
+      "devCsp": "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' ipc: http://ipc.localhost https://ipc.localhost ws://localhost:5173; object-src 'none'; base-uri 'self'; form-action 'none'; frame-src 'none'"
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": ["nsis"],
+    "shortDescription": "你的本地信息册",
+    "category": "Productivity",
+    "icon": ["icons/icon.png", "icons/icon.ico"],
+    "windows": {
+      "webviewInstallMode": { "type": "downloadBootstrapper", "silent": true },
+      "nsis": {
+        "template": "installer/installer.nsi",
+        "installMode": "currentUser",
+        "languages": ["SimpChinese"],
+        "displayLanguageSelector": false,
+        "installerIcon": "icons/icon.ico",
+        "uninstallerIcon": "icons/icon.ico",
+        "installerHooks": "installer-hooks.nsh"
+      }
+    }
+  }
+}

@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <title>Folio</title>
+  <rect width="64" height="64" rx="14.5" fill="#242426"/>
+  <path d="M13 53V15.5a4.5 4.5 0 0 1 4.5-4.5h32A4.5 4.5 0 0 1 54 15.5V19a2.3 2.3 0 0 1-2.3 2.3H22a5.5 5.5 0 0 0-5.5 5.5v1.7a4 4 0 0 1 4-3.5H43a4.5 4.5 0 0 1 4.5 4.5V33a2 2 0 0 1-2 2H24.9a4.5 4.5 0 0 0-4.5 4.5V53Z" fill="#fafaf8"/>
+</svg>

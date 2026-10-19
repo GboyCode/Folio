@@ -1,0 +1,145 @@
+/* Interaction motion, independent of the card artwork and data model. */
+:root {
+  --motion-ease: cubic-bezier(.22, 1, .36, 1);
+  --motion-press: 110ms;
+}
+
+/* Press feedback applies to small controls, not to the full card's text. */
+:where([data-slot=button], [data-slot=tabs-trigger], [data-slot=toggle-group-item], .nav-link, .stat, .favorite-button, .icon-button, .text-link, .mobile-bottom button) {
+  transition: transform 180ms var(--motion-ease), background-color 180ms ease, color 180ms ease, border-color 180ms ease, box-shadow 180ms ease;
+  -webkit-tap-highlight-color: transparent;
+}
+:where([data-slot=button], [data-slot=tabs-trigger], [data-slot=toggle-group-item], .nav-link, .stat, .favorite-button, .icon-button, .text-link, .mobile-bottom button):active:not(:disabled):not([aria-disabled=true]) {
+  transform: scale(.96);
+  transition-duration: var(--motion-press);
+}
+.favorite-button.is-favorite svg { animation: favorite-mark 320ms var(--motion-ease); }
+.nav-link > svg, .mobile-bottom button > svg { transition: transform 220ms var(--motion-ease); }
+.nav-link[aria-current=page] > svg, .mobile-bottom button[aria-current=page] > svg { transform: scale(1.08); }
+
+/* The outer card stays still so pointer coordinates never feed back into the tilt. */
+.card-art { perspective: 850px; border-radius: 10px; }
+.card-art-surface {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1.586;
+  border-radius: inherit;
+  transform: translateY(0) rotateX(0) rotateY(0) scale(1);
+  transition: transform 340ms var(--motion-ease), filter 260ms ease;
+}
+.card-art img { display: block; transform: none; transition: none; }
+.tile-main:hover .card-art img, .art-add-button:hover .card-art img { transform: none; }
+.card-art.generated { display: block; padding: 0; overflow: visible; box-shadow: none; }
+.card-art.generated .card-art-surface {
+  display: flex;
+  flex-direction: column;
+  padding: 16px;
+  overflow: hidden;
+  box-shadow: 0 3px 7px #18181b14;
+}
+.card-art-sheen {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  opacity: 0;
+  background: radial-gradient(ellipse at var(--card-light-x, 35%) var(--card-light-y, 20%), #fff5, #fff0 65%);
+  mix-blend-mode: screen;
+  transition: opacity 260ms ease;
+}
+.entry-tile, .library-card { transition: border-color 220ms ease, box-shadow 220ms ease; }
+.art-hover { transition: opacity 180ms ease, translate 220ms var(--motion-ease); translate: 0 4px; }
+.art-add-button:is(:hover, :focus-visible) .art-hover { translate: 0 0; }
+.tile-main:focus-visible .card-art-surface, .art-add-button:focus-visible .card-art-surface {
+  transform: translateY(-4px) scale(1.015);
+}
+@media (hover: hover) and (pointer: fine) {
+  .card-art:hover .card-art-surface, .tile-main:hover .card-art-surface, .art-add-button:hover .card-art-surface {
+    transform: translateY(-5px) rotateX(var(--card-rx, 2deg)) rotateY(var(--card-ry, -2deg)) scale(1.018);
+    filter: drop-shadow(0 7px 8px #18181b16);
+  }
+  .card-art:hover .card-art-sheen, .tile-main:hover .card-art-sheen, .art-add-button:hover .card-art-sheen { opacity: .6; }
+  .entry-tile:hover, .library-card:hover { box-shadow: 0 6px 20px #18181b0c; }
+}
+.tile-main:active .card-art-surface, .art-add-button:active .card-art-surface, .art-options button:active .card-art-surface, .card-art[data-pressed] .card-art-surface {
+  transform: translateY(1px) rotateX(0) rotateY(0) scale(.97);
+  transition-duration: var(--motion-press);
+}
+.sim-visual, .address-visual { transition: transform 220ms var(--motion-ease); }
+.tile-main:active :is(.sim-visual, .address-visual) { transform: scale(.97); }
+
+/* Short, bounded stagger: even a large catalogue is interactive immediately. */
+.collection-content { animation: collection-enter 240ms var(--motion-ease); }
+.cards-grid > :is(.entry-tile, .library-card) { animation: tile-enter 320ms var(--motion-ease) backwards; }
+.cards-grid > :is(.entry-tile, .library-card):nth-child(2) { animation-delay: 25ms; }
+.cards-grid > :is(.entry-tile, .library-card):nth-child(3) { animation-delay: 50ms; }
+.cards-grid > :is(.entry-tile, .library-card):nth-child(4) { animation-delay: 75ms; }
+.cards-grid > :is(.entry-tile, .library-card):nth-child(5) { animation-delay: 100ms; }
+.cards-grid > :is(.entry-tile, .library-card):nth-child(6) { animation-delay: 125ms; }
+
+[data-slot=dialog-overlay][data-state=open] { animation: overlay-enter 220ms ease both; }
+[data-slot=dialog-overlay][data-state=closed] { animation: overlay-exit 180ms ease both; }
+.modal[data-state=open] { animation: modal-enter 280ms var(--motion-ease) both; }
+.modal[data-state=closed] { animation: modal-exit 180ms ease both; }
+.modal.detail-sheet {
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: auto;
+  translate: none;
+  width: min(480px, 100vw);
+  max-width: 100vw;
+  height: 100dvh;
+  max-height: 100dvh;
+  border-radius: 0;
+  border-block: 0;
+  border-right: 0;
+  box-shadow: -12px 0 48px #18181b12;
+}
+.detail-sheet .modal-inner { flex: 1; }
+.detail-sheet .modal-body { flex: 1; padding-bottom: env(safe-area-inset-bottom); }
+.detail-sheet[data-state=open] { animation: detail-enter 340ms var(--motion-ease) both; }
+.detail-sheet[data-state=closed] { animation: detail-exit 180ms ease both; }
+.detail-sheet[data-state=open] .detail-art { animation: tile-enter 380ms 70ms var(--motion-ease) backwards; }
+.toast { animation: none; }
+
+@media (max-width: 640px) {
+  .modal.detail-sheet {
+    top: auto;
+    width: 100%;
+    height: auto;
+    max-height: calc(100dvh - 20px);
+    border: 0;
+    border-top: 1px solid var(--border);
+    border-radius: 18px 18px 0 0;
+  }
+  .detail-sheet[data-state=open] { animation-name: detail-rise; }
+  .detail-sheet[data-state=closed] { animation-name: detail-lower; }
+  .detail-sheet .modal-head { padding-top: 24px; }
+}
+
+@keyframes favorite-mark { 0% { transform: scale(.7) rotate(-16deg); } 55% { transform: scale(1.22) rotate(8deg); } 100% { transform: scale(1) rotate(0); } }
+@keyframes collection-enter { from { opacity: .3; } to { opacity: 1; } }
+@keyframes tile-enter { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes overlay-enter { from { opacity: 0; } to { opacity: 1; } }
+@keyframes overlay-exit { from { opacity: 1; } to { opacity: 0; } }
+@keyframes modal-enter { from { opacity: 0; transform: translateY(12px) scale(.97); } to { opacity: 1; transform: translateY(0) scale(1); } }
+@keyframes modal-exit { from { opacity: 1; transform: translateY(0) scale(1); } to { opacity: 0; transform: translateY(8px) scale(.98); } }
+@keyframes detail-enter { from { opacity: .5; transform: translateX(100%); } to { opacity: 1; transform: translateX(0); } }
+@keyframes detail-exit { from { opacity: 1; transform: translateX(0); } to { opacity: 0; transform: translateX(100%); } }
+@keyframes detail-rise { from { opacity: .5; transform: translateY(100%); } to { opacity: 1; transform: translateY(0); } }
+@keyframes detail-lower { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(100%); } }
+
+/* Keep both CSS and pointer-driven transforms still when motion is reduced. */
+@media (prefers-reduced-motion: reduce) {
+  .card-art-surface, .tile-main:is(:hover, :active, :focus-visible) .card-art-surface,
+  .art-add-button:is(:hover, :active, :focus-visible) .card-art-surface,
+  .card-art:hover .card-art-surface, .art-options button:active .card-art-surface, .card-art[data-pressed] .card-art-surface,
+  .tile-main:active :is(.sim-visual, .address-visual),
+  :where([data-slot=button], [data-slot=tabs-trigger], [data-slot=toggle-group-item], .nav-link, .stat, .favorite-button, .icon-button, .text-link, .mobile-bottom button):active {
+    transform: none;
+    filter: none;
+  }
+  .card-art-sheen { display: none; }
+  .art-hover { translate: none; }
+}

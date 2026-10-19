@@ -1,0 +1,15 @@
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import { desktopMode } from './runtime';
+import { TooltipProvider } from './components/ui/tooltip';
+import './theme.css';
+import './styles.css';
+import './motion.css';
+import './sim-card.css';
+import './address-card.css';
+import './entry-form.css';
+import './wallet-overview.css';
+import './world-distribution.css';
+const App = (await (desktopMode ? import('./desktop') : import('./cloud'))).default;
+ReactDOM.createRoot(document.getElementById('root')!).render(<React.StrictMode><TooltipProvider delayDuration={350}><App /></TooltipProvider></React.StrictMode>);
+if (!desktopMode && import.meta.env.PROD && 'serviceWorker' in navigator) window.addEventListener('load',()=>navigator.serviceWorker.register('/sw.js').catch(()=>{}));

@@ -1,0 +1,3 @@
+LIBRARY controls
+EXPORTS
+  StyleButton=_StyleButton@8

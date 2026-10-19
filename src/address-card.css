@@ -1,0 +1,56 @@
+/* Local aerial presets keep the same address artwork across full cards and thumbnails. */
+.cards-grid.address-grid:not(.list-view) { grid-template-columns: repeat(auto-fill,minmax(0,min(320px,100%))); gap: 22px; align-items: start; }
+.entry-tile.address-home { width: 100%; max-width: 320px; overflow: visible; align-self: start; border: 0; border-radius: 12px; background: transparent; box-shadow: none; }
+.address-home-shell { position: relative; border-radius: inherit; box-shadow: 0 2px 5px #20232a08; transition: transform 260ms var(--motion-ease),box-shadow 260ms ease; }
+.address-home-open { display: block; width: 100%; border-radius: 12px; text-align: left; }
+.address-home-open:focus-visible { outline: 2px solid var(--ring); outline-offset: 4px; }
+.address-home-face { position: relative; overflow: hidden; min-height: 288px; padding: 14px 20px 13px; border: 1px solid var(--border); border-radius: 12px; background: var(--card); color: var(--foreground); }
+.address-aerial-photo { position: absolute; inset: 0 0 auto; width: 100%; height: 188px; object-fit: cover; mask-image: linear-gradient(180deg,#000 40%,transparent 84%); pointer-events: none; }
+.address-home-head,.address-home-content,.address-home-location { position: relative; }
+.address-home-head { display: flex; align-items: flex-start; justify-content: flex-end; gap: 12px; height: 114px; }
+.address-aerial-marker { position: absolute; left: calc(50% - 10px); top: 38px; width: 20px; height: 20px; fill: #34383e; stroke: #fff; filter: drop-shadow(0 1px 3px #0004); }
+.address-home-region { display: flex; align-items: center; gap: 6px; padding: 5px 7px; border: 1px solid #ffffff80; border-radius: 5px; background: #fffffff2; color: #606570; font-size: 10px; line-height: 15px; letter-spacing: .08em; box-shadow: 0 1px 4px #20232a14; }
+.address-home-region .country-flag { width: 16px; height: 12px; flex-basis: 16px; }
+.address-home-region .country-flag img { width: 16px; height: 12px; }
+.address-home-content { min-width: 0; margin-top: 10px; }
+.address-home-content h3 { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 14px; line-height: 22px; font-weight: 600; }
+.address-home-street { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; overflow-wrap: anywhere; min-height: 44px; margin-top: 6px; font-size: 14px; line-height: 22px; color: #606774; }
+.address-home-locality { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-top: 2px; font-size: 12px; line-height: 20px; color: var(--muted-foreground); }
+.address-home-location { display: flex; align-items: center; gap: 6px; min-width: 0; min-height: 32px; margin-top: 10px; padding: 9px 76px 0 0; border-top: 1px solid #eceef1; color: var(--muted-foreground); font-size: 12px; line-height: 20px; }
+.address-home-location > svg { flex-shrink: 0; }
+.address-home-location > span:first-of-type { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.address-home-demo { flex-shrink: 0; font-size: 10px; }
+.address-home-actions { position: absolute; right: 11px; bottom: 9px; display: flex; gap: 3px; }
+.address-home-actions > :is(.favorite-button,.icon-button) { display: grid; place-items: center; width: 32px; height: 32px; min-width: 32px; border-radius: 6px; background: transparent; color: var(--muted-foreground); }
+.address-home-actions > :is(.favorite-button,.icon-button):hover { background: var(--muted); color: var(--foreground); }
+.address-home-actions > .favorite-button.is-favorite { color: #a07e38; }
+.detail-postcard { width: min(320px,100%); margin: 0 auto 24px; }
+.detail-postcard .address-home-location { padding-right: 0; }
+@media (hover: hover) and (pointer: fine) {
+  .address-home-shell:has(.address-home-open:hover) { transform: translateY(-3px); box-shadow: 0 7px 14px #20232a10; }
+}
+.address-home-shell:has(.address-home-open:active),.address-home-shell[data-pressed] { transform: translateY(1px) scale(.98); transition-duration: 110ms; }
+.cards-grid.list-view .address-home { display: block; max-width: none; padding: 0; min-height: 0; }
+.list-view .address-home-face { min-height: 132px; padding: 15px 118px 15px 114px; }
+.list-view .address-aerial-photo { width: 98px; height: 100%; mask-image: linear-gradient(90deg,#000 72%,transparent); }
+.list-view .address-home-head { position: absolute; top: 17px; left: 17px; width: 78px; height: 96px; flex-direction: column; align-items: center; gap: 2px; }
+.list-view .address-aerial-marker { top: 20px; left: calc(50% - 9px); width: 18px; height: 18px; }
+.list-view .address-home-region { margin-top: 61px; padding: 2px 5px; font-size: 9px; }
+.list-view .address-home-content { margin: 0; }
+.list-view .address-home-street { min-height: 22px; margin-top: 4px; }
+.list-view .address-home-location { min-height: 0; margin: 5px 0 0; padding: 0; border: 0; }
+.list-view .address-home-actions { top: 50%; bottom: auto; right: 16px; transform: translateY(-50%); }
+@media (max-width: 640px) {
+  .cards-grid.address-grid:not(.list-view) { gap: 18px; }
+  .address-home-actions { right: 8px; bottom: 6px; gap: 2px; }
+  .address-home-actions > :is(.favorite-button,.icon-button) { width: 40px; height: 40px; min-width: 40px; }
+  .address-home-location { padding-right: 86px; }
+  .list-view .address-home-face { padding: 16px 16px 52px 92px; min-height: 160px; }
+  .list-view .address-home-head { top: 20px; left: 12px; width: 66px; }
+  .list-view .address-aerial-photo { width: 80px; }
+  .list-view .address-home-location { position: absolute; left: 92px; right: 100px; bottom: 16px; }
+  .list-view .address-home-actions { top: auto; bottom: 6px; right: 8px; transform: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .address-home-shell,.address-home-shell:has(.address-home-open:hover),.address-home-shell:has(.address-home-open:active),.address-home-shell[data-pressed] { transform: none; transition: none; }
+}
