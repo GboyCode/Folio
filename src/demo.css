@@ -1,0 +1,9 @@
+.demo-notice { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-shrink: 0; padding: 10px 32px; background: #f5f7f2; border-bottom: 1px solid #e8ece2; color: #59694d; font-size: 12px; line-height: 20px; }
+.demo-notice-copy, .demo-notice-actions { display: flex; align-items: center; gap: 14px; }
+.demo-notice-copy strong { font-weight: 600; white-space: nowrap; }
+.demo-notice-actions { flex-shrink: 0; }
+.demo-notice-actions button, .demo-notice-actions a { display: inline-flex; align-items: center; gap: 5px; border: 0; background: transparent; padding: 0; color: inherit; font: inherit; cursor: pointer; text-decoration: none; }
+.demo-notice-actions button:hover, .demo-notice-actions a:hover { color: #25341c; text-decoration: underline; text-underline-offset: 3px; }
+.demo-notice-actions :focus-visible { outline: 2px solid #788b67; outline-offset: 4px; border-radius: 3px; }
+@media (max-width: 1050px) { .demo-notice { padding-inline: 20px; } .demo-notice-copy { gap: 8px; } }
+@media (max-width: 600px) { .demo-notice { padding: 8px 16px; align-items: flex-start; gap: 8px; font-size: 11px; } .demo-notice-copy { display: block; } .demo-notice-copy strong { display: block; } .demo-notice-actions { gap: 10px; padding-top: 10px; } .demo-notice-actions svg { display: none; } }

@@ -19,12 +19,12 @@ const mapViewBox = `0 ${mapViewport.top} ${mapViewport.width} ${mapViewport.heig
 const mapRatio = mapViewport.height/mapViewport.width;
 const baseMap = <svg className="world-map-land" viewBox={mapViewBox} aria-hidden="true" focusable="false"><image href="/world-map.svg" width="1000" height="450"/></svg>;
 
-export function WorldDistribution({entries,onOpen,onAdd}:{entries:Entry[];onOpen:(entry:Entry)=>void;onAdd:()=>void}) {
+export function WorldDistribution({entries,onOpen,onAdd,initialGlobe=false}:{entries:Entry[];onOpen:(entry:Entry)=>void;onAdd:()=>void;initialGlobe?:boolean}) {
   const regions = useMemo(()=>groupInformationRegions(entries),[entries]);
   const [selection,setSelection] = useState<string | null>(null);
   const [mapWidth,setMapWidth] = useState(0);
   const [flowPaused,setFlowPaused] = useState(false);
-  const [globe,setGlobe] = useState(false);
+  const [globe,setGlobe] = useState(initialGlobe);
   const [rotationPaused,setRotationPaused] = useState(false);
   const [activeRegion,setActiveRegion] = useState<string|null>(null);
   const featuredRegion=regions.find(region=>region.key===activeRegion)||regions[0];

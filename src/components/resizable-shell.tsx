@@ -14,15 +14,15 @@ function readWidth() {
   return DEFAULT_WIDTH;
 }
 
-export function ResizableShell({ children }: { children: ReactNode }) {
-  const [width, setWidth] = useState(readWidth);
+export function ResizableShell({ children, persistent = true }: { children: ReactNode; persistent?: boolean }) {
+  const [width, setWidth] = useState(() => persistent ? readWidth() : DEFAULT_WIDTH);
   const [resizing, setResizing] = useState(false);
   const drag = useRef<{ pointerId: number; startX: number; startWidth: number } | null>(null);
 
   useEffect(() => {
-    if (resizing) return;
+    if (resizing || !persistent) return;
     try { localStorage.setItem(STORAGE_KEY, String(width)); } catch { /* Keep resizing usable without persistence. */ }
-  }, [width, resizing]);
+  }, [width, resizing, persistent]);
 
   useEffect(() => {
     if (!resizing) return;

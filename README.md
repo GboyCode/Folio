@@ -33,7 +33,9 @@ Folio 将银行卡、U 卡、SIM 卡和地址集中整理，提供真实卡面�
 
 **Windows 用户：** 在 [Releases](https://github.com/GboyCode/Folio/releases/latest) 下载 `Folio_0.1.9_x64-setup.exe`。支持 Windows 10/11 x64，需要 WebView2（缺失时安装器会下载运行时）。安装后日常资料管理可离线使用。当前安装包未进行代码签名；下载来源与 SHA-256 校验值见 Release。
 
-**网页版：** 按 [自部署指南](docs/SELF_HOSTING.md) 创建自己的 D1 数据库、初始化独立账号并部署。产品官网只提供介绍和下载，不收集或托管你的卡包。
+**在线演示：** [直接体验 Folio](https://folio.toagi.cc/demo/)，无需注册。真实界面预置 12 个国家和地区的虚构资料，可探索平铺地图、旋转地球和地区卡片。修改只在当前页面中有效，刷新即可重置；演示版不连接账号 API 或数据库，请勿输入真实资料。
+
+**网页版：** 按 [自部署指南](docs/SELF_HOSTING.md) 创建自己的 D1 数据库、初始化独立账号并部署。产品官网提供介绍、下载和独立演示，不收集或托管你的卡包。
 
 **本地开发：** Node.js 22.18+，执行 `npm ci`。完整本地网页登录需要 Worker API，步骤见自部署指南；Windows 构建依赖见 [桌面版指南](docs/DESKTOP_WINDOWS.md)。
 
@@ -49,6 +51,7 @@ npm run build
 src/                    共用 React 界面、图鉴和加密逻辑
 src/cloud.tsx           网页登录与云端保存适配
 src/desktop.tsx         Tauri 本地保存适配
+src/demo.tsx            虚构数据与仅内存生效的演示适配
 src-tauri/              Rust 后端、托盘、安装器
 worker/ + migrations/   Cloudflare API 与数据库结构
 site/                   静态产品官网
@@ -56,6 +59,8 @@ wrangler.example.jsonc  不含个人账号或资源 ID 的部署模板
 ```
 
 `VITE_DESKTOP=true` 选择桌面入口。网页构建写入 `dist/`，桌面构建写入 `dist-desktop/`，两者独立发布。源码中的原生功能只在桌面模式启用。
+
+产品官网与演示单独构建：`npm run site:build` 输出 `dist-site/`，其中 `/demo/` 使用 Vite 的 `demo` 模式，复用正式应用界面，排除登录 API 和 Service Worker。`npm run site:dev` 本地预览，`npm run site:deploy` 构建后部署官网 Worker；不改动自部署应用的数据库或网页版发布。
 
 ## 隐私与安全
 

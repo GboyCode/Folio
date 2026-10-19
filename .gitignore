@@ -1,6 +1,7 @@
 node_modules/
 dist/
 dist-desktop/
+dist-site/
 src-tauri/target/
 src-tauri/gen/
 src-tauri/installer/installer.nsi

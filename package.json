@@ -20,9 +20,10 @@
     "desktop:build": "node scripts/prepare-installer.mjs && node scripts/desktop.mjs build",
     "desktop:test": "node scripts/desktop.mjs test",
     "tauri": "tauri",
-    "site:dev": "vite site/public --host 127.0.0.1 --port 5175",
-    "site:deploy": "wrangler deploy --config site/wrangler.jsonc",
-    "test:account": "node --test tests/provision-account.test.mjs"
+    "site:dev": "npm run site:build && vite preview --outDir dist-site --host 127.0.0.1 --port 5175 --strictPort",
+    "site:deploy": "npm run site:build && wrangler deploy --config site/wrangler.jsonc",
+    "test:account": "node --test tests/provision-account.test.mjs",
+    "site:build": "tsc -b && node scripts/build-site.mjs"
   },
   "dependencies": {
     "@tauri-apps/api": "^2.12.4",

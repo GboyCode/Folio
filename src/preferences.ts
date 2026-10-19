@@ -19,7 +19,7 @@ export function validateProfile(profile: Profile): Profile {
   return { displayName, avatar: profile.avatar };
 }
 
-export function usePreferences(local: boolean, username: string) {
+export function usePreferences(local: boolean, username: string, persistent = true) {
   const [preferences, setPreferences] = useState<Preferences>(() => ({ profile: { displayName: username, avatar: '' }, closeBehavior: 'exit', autostart: null, version: '' }));
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(true);
@@ -29,19 +29,19 @@ export function usePreferences(local: boolean, username: string) {
     try {
       if (local) setPreferences(await nativeCommand<Preferences>('load_preferences'));
       else {
-        const raw = localStorage.getItem(key);
+        const raw = persistent ? localStorage.getItem(key) : null;
         const profile = raw ? validateProfile(JSON.parse(raw)) : { displayName: username, avatar: '' };
         setPreferences({ profile, closeBehavior: 'exit', autostart: null, version: '' });
       }
     } catch { setError('暂时无法读取设置，请重试。原设置已保留。'); }
     finally { setLoading(false); }
-  }, [local, username, key]);
+  }, [local, username, key, persistent]);
   useEffect(() => { void reload(); }, [reload]);
   const saveProfile = async (value: Profile) => {
     if (loading || error) throw new Error('请先重新加载设置。');
     const profile = validateProfile(value);
     const saved = local ? await nativeCommand<Profile>('save_profile', { profile }) : profile;
-    if (!local) {
+    if (!local && persistent) {
       try { localStorage.setItem(key, JSON.stringify(saved)); }
       catch { throw new Error('浏览器无法保存资料，请检查存储空间或隐私设置。'); }
     }

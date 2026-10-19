@@ -6,7 +6,7 @@ export function BrandIcon({size=34,className='brand-icon'}:{size?:number;classNa
 }
 
 export function Brand({ onHome }: { onHome?: () => void } = {}) {
-  if (desktopMode) return onHome
+  if (desktopMode || onHome) return onHome
     ? <button type="button" className="brand" onClick={onHome} aria-label="Folio，返回我的信息" title="返回我的信息"><BrandIcon/><span>Folio</span></button>
     : <span className="brand"><BrandIcon/><span>Folio</span></span>;
   return <a className="brand" href="/" aria-label="Folio，返回我的信息并刷新" title="返回我的信息并刷新"><BrandIcon/><span>Folio</span></a>;
