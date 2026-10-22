@@ -1,4 +1,6 @@
 import { validateWallet, isEncrypted, MAX_BACKUP_BYTES } from '../src/validation';
+import { handleWebDav } from './webdav';
+import type { DavRequest } from '../src/webdav';
 
 type Account = { username: string; password_hash: string; password_salt: string; password_iterations: number; auth_version: number };
 const encoder = new TextEncoder();
@@ -78,6 +80,12 @@ async function api(request: Request, env: Env, ctx: ExecutionContext): Promise<R
     return json({ ok: true }, 200, { 'Set-Cookie': cookie(request, '', 0) });
   }
   const user = await session(request, env);
+  if (pathname === '/api/webdav' && request.method === 'POST') {
+    // JSON-encoded backup text can contain escaped quotes and control characters.
+    const input = await body(request, MAX_BACKUP_BYTES * 2 + 8192);
+    try { return json(await handleWebDav(input as unknown as DavRequest)); }
+    catch (error) { return json({ error: error instanceof Error ? error.message : 'WebDAV 操作失败。' }, 400); }
+  }
   if (pathname === '/api/session' && request.method === 'GET') return json({ username: user.username });
   if (pathname === '/api/password' && request.method === 'POST') {
     const attemptKey = await throttle(request, env);

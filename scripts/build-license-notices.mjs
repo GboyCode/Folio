@@ -26,6 +26,6 @@ for(const section of cargo.split('[[package]]').slice(1)){
 }
 for(const file of await fs.readdir(path.join(root,'licenses')))chunks.push(`\n${'='.repeat(72)}\n${file}\n`+await fs.readFile(path.join(root,'licenses',file),'utf8'));
 chunks.push('\n'+await fs.readFile(path.join(root,'public/map-data-license.txt'),'utf8'));
-await fs.writeFile(path.join(root,'THIRD_PARTY_LICENSES.txt'),chunks.join('\n'));
+await fs.writeFile(path.join(root,'THIRD_PARTY_LICENSES.txt'),chunks.join('\n').replace(/[ \t]+$/gm,''));
 console.log(`Collected installed dependency notices. ${missing.length} packages declare a license but contain no top-level license text.`);
 if(missing.length)console.log(missing.join('\n'));

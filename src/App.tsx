@@ -25,6 +25,8 @@ import { WalletOverview } from './components/wallet-overview';
 import { WorldDistribution } from './components/world-distribution';
 import { usePreferences } from './preferences';
 import { PreferencesPage, ProfileAvatar, ProfileMenu } from './components/preferences-page';
+import { WebDavPanel, useWebDavSettings } from './components/webdav-panel';
+import { validateDavBackup } from './webdav';
 
 type Page='wallet'|'payment'|'favorites'|'sim'|'address'|'library'|'settings'|'preferences';
 function readInitial(raw:string){
@@ -40,6 +42,8 @@ export default function App({initialRaw,initialRevision,username,onLogout,onExit
   const local = storageKind === 'local';
   const demo = storageKind === 'demo';
   const preferences = usePreferences(local, username, !demo);
+  const webdav = useWebDavSettings(`${storageKind}:${username}`, !demo);
+  const [remoteImport,setRemoteImport]=useState<{raw:string;name:string}|null>(null);
   const [initial]=useState(()=>readInitial(initialRaw));
   const reducedMotion = useReducedMotion();
   const revisionRef=useRef(initialRevision);
@@ -85,7 +89,7 @@ export default function App({initialRaw,initialRevision,username,onLogout,onExit
   const notify=(message:string)=>{setToast(message);};
   useEffect(()=>{if(!toast)return;const timer=setTimeout(()=>setToast(''),4000);return()=>clearTimeout(timer);},[toast]);
   const closeDetail=()=>{setDetail(null);setReveal(false);};
-  const lock=()=>{if(!encrypted||busyRef.current)return;keyRef.current=null;setWallet(null);setForm(null);closeDetail();setShowEncryption(false);setShowImport(false);setDeleteEntry(null);setConfirm(null);setSearch('');setPrivacy(false);};
+  const lock=()=>{if(!encrypted||busyRef.current)return;keyRef.current=null;webdav.clearPassword();setRemoteImport(null);setWallet(null);setForm(null);closeDetail();setShowEncryption(false);setShowImport(false);setDeleteEntry(null);setConfirm(null);setSearch('');setPrivacy(false);};
   useEffect(()=>{
     let timer:ReturnType<typeof setTimeout>;
     const reset=()=>{clearTimeout(timer);if(encrypted&&wallet)timer=setTimeout(lock,5*60*1000);};
@@ -150,7 +154,7 @@ export default function App({initialRaw,initialRevision,username,onLogout,onExit
       <header className="topbar"><div className="breadcrumb"><Button variant="ghost" size="icon-sm" ref={menuRef} className="menu-toggle" aria-label="打开导航" aria-controls="app-navigation" aria-expanded={mobileNav} onClick={()=>setMobileNav(true)}><Menu size={19}/></Button><strong>{pageTitles[page]}</strong></div><div className="topbar-actions"><span className={`local-status ${!local&&!online?'offline':''}`}><i/>{demo?'演示模式':busy?'正在保存…':local?'本地保存':online?'已连接':'当前离线'}</span><span className="topbar-divider"/><IconAction label={privacy?'显示尾号':'隐藏尾号'} onClick={()=>setPrivacy(!privacy)}>{privacy?<EyeOff size={17}/>:<Eye size={17}/>}</IconAction><IconAction label="查看到期提醒" className="notification-button" onClick={()=>{if(reminders.length){setDetail(reminders[0]);}else notify('未来 30 天暂无到期或续费提醒');}}><Bell size={17}/>{reminders.length>0&&<i/>}</IconAction></div></header>
       {notice}
       <FadeIn key={page} className="page-transition"><main className={page==='settings'||page==='preferences'?'settings-content':page==='wallet'?'information-content':undefined}>
-        {page==='preferences'?<PreferencesPage controller={preferences} local={local} onData={()=>navigate('settings')}/>:page==='settings'?<><div className="content-heading settings-heading"><div><h1>数据隐私</h1><p>{local?'管理本地资料、备份和加密。':'管理账号、备份和卡包加密。'}</p></div></div>{settingsPanel}<SettingsPage local={local} encrypted={!!encrypted} entries={entries} onExport={exportBackup} onImport={()=>setShowImport(true)} onEncrypt={()=>setShowEncryption(true)} onLock={lock} onClearDemo={()=>setConfirm('demo')} onClear={()=>setConfirm('all')}/></>:<>
+        {page==='preferences'?<PreferencesPage controller={preferences} local={local} onData={()=>navigate('settings')}/>:page==='settings'?<><div className="content-heading settings-heading"><div><h1>数据隐私</h1><p>{local?'管理本地资料、备份、同步和加密。':'管理账号、备份、同步和卡包加密。'}</p></div></div><SettingsPage settingsPanel={settingsPanel} webdavPanel={!demo && <WebDavPanel controller={webdav} local={local} encrypted={!!encrypted} saving={busy} getRaw={()=>{if(busyRef.current)throw new Error('正在保存，请稍后再试。');if(!rawRef.current)throw new Error('当前卡包不可用。');return rawRef.current;}} onDownload={setRemoteImport}/>} local={local} encrypted={!!encrypted} entries={entries} onExport={exportBackup} onImport={()=>setShowImport(true)} onEncrypt={()=>setShowEncryption(true)} onLock={lock} onClearDemo={()=>setConfirm('demo')} onClear={()=>setConfirm('all')}/></>:<>
           <div className="content-heading"><div><div className="heading-title"><h1>{pageTitles[page]}</h1><Badge variant="secondary" className="count-badge">{pageCounts[page]}</Badge></div><p>{pageDescriptions[page]}</p></div><div className="heading-actions">{page==='wallet'&&<Button variant="outline" className="button secondary desktop-only" onClick={()=>setShowImport(true)}><Upload size={15}/>导入备份</Button>}<Button className="button primary" onClick={()=>add()}><Plus size={16}/>{page==='wallet'?'添加信息':page==='payment'?(filter==='bank'?'添加银行卡':filter==='crypto'?'添加 U 卡':'添加卡片'):page==='address'?'添加地址':page==='sim'?'添加号码':'添加卡片'}</Button></div></div>
           {page==='wallet'?<><WalletOverview counts={{bank:bankCards.length,crypto:cryptoCards.length,sim:simCards.length,address:addressCountryCount}} onSelect={kind=>{if(kind==='bank'||kind==='crypto'){navigate('payment');setFilter(kind);}else navigate(kind);}}/><WorldDistribution initialGlobe={demo} entries={entries} onOpen={openEntry} onAdd={()=>add()}/></>:<>
           {page==='library'&&<div className="library-note"><BookOpen size={15}/><span>{catalog.length} 张内置卡面 · 仅用于识别与个人收藏，产品信息以发卡机构为准。</span></div>}
@@ -177,6 +181,7 @@ export default function App({initialRaw,initialRevision,username,onLogout,onExit
     {confirm&&<Modal key="confirm" title={confirm==='demo'?'清除示例，开始自己的收藏':'清空当前卡包？'} onClose={()=>setConfirm(null)}><p className="modal-message">{confirm==='demo'?`将删除 ${demoCount} 条示例记录。你自己添加的记录会保留。`:'所有卡片、号码和地址将从当前卡包删除。建议先导出备份，此操作无法撤销。'}</p><div className="modal-actions"><Button variant="outline" className="button secondary" onClick={()=>setConfirm(null)}>取消</Button><Button variant="destructive" className="button destructive" disabled={busy} onClick={async()=>{if(!wallet)return;try{await commit({...wallet,entries:confirm==='demo'?entries.filter(e=>!e.demo):[]});setConfirm(null);notify('已清除指定记录');}catch(err){notify((err as Error).message);}}}>确认清除</Button></div></Modal>}
     {showEncryption&&wallet&&<PasswordModal key="encryption" onClose={()=>setShowEncryption(false)} onSubmit={async password=>{if(busyRef.current)return;busyRef.current=true;setBusy(true);try{const result=await createEncryption(wallet,password);await persistRaw(JSON.stringify(result.envelope));keyRef.current=result.key;setEncrypted(result.envelope);setShowEncryption(false);notify('密码加密已开启，请妥善保管密码');}finally{busyRef.current=false;setBusy(false);}}}/>}
     {showImport&&wallet&&<ImportModal key="import" onClose={()=>setShowImport(false)} current={wallet} onImport={async next=>{await commit(next);setShowImport(false);notify('备份导入成功');}}/>}
+    {remoteImport&&wallet&&<ImportModal key="webdav-import" source={remoteImport} targetEncrypted={!!encrypted} onClose={()=>setRemoteImport(null)} current={wallet} onImport={async next=>{await commit(next);setRemoteImport(null);notify('远程备份已导入当前卡包，网盘文件保持不变');}}/>}
     {help&&<Modal key="help" title="随身卡包，使用指南" onClose={()=>setHelp(false)}><div className="help-content"><p><strong>01 · 收藏你的卡片</strong>从卡面图鉴选择样式，或上传自己的空白卡面。支持银行卡、U 卡和 SIM 电话卡。</p><p><strong>02 · 管理地址信息</strong>按国家、城市整理收件与账单地址，一键复制完整地址。</p><p><strong>03 · 保存与使用</strong>{local?'资料直接保存在所选文件夹，无需联网。可在数据隐私中选择其他目录，或使用备份在设备间迁移。':'登录后从云端数据库读取卡包，每次保存即时写入。另一台设备刷新页面即可获取最新记录。'}</p><p><strong>04 · 备份与密码</strong>在「数据隐私」中导出备份、导入到其他设备，或开启密码加密。忘记加密密码无法恢复，请妥善保管。</p><p><strong>05 · 备份与迁移</strong>{local?'网页端导出的普通或加密备份，都可以在本地版导入。资料不会自动上传云端。':'旧版本地卡包可先导出，再登录本站导入。'}</p><p className="tiny muted">本工具只整理信息，不连接银行，不处理资金。卡面和商标归相应权利人所有。</p></div></Modal>}
     </AnimatePresence>
     <AnimatePresence>
@@ -201,9 +206,60 @@ function EntryTile({entry,privacy,onOpen,onFavorite,onCopy}:{entry:Entry;privacy
   </article>;
 }
 
-function SettingsPage({local=false,encrypted,entries,onExport,onImport,onEncrypt,onLock,onClearDemo,onClear}:{local?:boolean;encrypted:boolean;entries:Entry[];onExport:()=>void;onImport:()=>void;onEncrypt:()=>void;onLock:()=>void;onClearDemo:()=>void;onClear:()=>void}){
+function SettingsPage({local=false,encrypted,entries,settingsPanel,webdavPanel,onExport,onImport,onEncrypt,onLock,onClearDemo,onClear}:{local?:boolean;encrypted:boolean;entries:Entry[];settingsPanel?:ReactNode;webdavPanel:ReactNode;onExport:()=>void;onImport:()=>void;onEncrypt:()=>void;onLock:()=>void;onClearDemo:()=>void;onClear:()=>void}){
   const size=(new Blob([JSON.stringify(entries)]).size/1024).toFixed(1);
-  return <div className="settings-page"><section className="settings-panel"><div className="settings-panel-title"><Database size={21}/><div><h3>卡包存储</h3><p>{entries.length} 条记录 · 约 {size} KB</p></div><span className="status-tag">{encrypted?'已加密':'未加密'}</span></div><p className="settings-description">{local?'卡包保存在你选择的本地文件夹，保存成功后即时写入磁盘。建议定期导出备份。':'卡包保存在 Cloudflare D1 数据库，保存成功后同步到云端。在其他设备登录即可读取。'}</p></section><section className="settings-panel"><div className="settings-row"><div className="settings-icon"><LockKeyhole size={21}/></div><div><h3>密码加密</h3><p>{encrypted?'已开启 AES-GCM 加密，切换后台或闲置 5 分钟后自动锁定。':local?'在本机加密后再保存。开启前，文件中的记录可直接读取。':'在浏览器加密后再上传。开启前，记录可由服务器读取。'}</p></div><Button variant="outline" className="button secondary" onClick={encrypted?onLock:onEncrypt}>{encrypted?'立即锁定':'开启加密'}<ArrowRight size={14}/></Button></div><p className="tiny muted">加密密码仅在当前设备用于加密和解密，不会上传。密码遗失后无法找回，请妥善保管。</p></section><section className="settings-panel"><div className="settings-row"><div className="settings-icon"><Download size={21}/></div><div><h3>导出备份</h3><p>{encrypted?'导出包含全部记录和自定义卡面的密码加密文件。':'导出全部记录和自定义卡面为 JSON 文件，文件包含明文个人资料。'}</p></div><Button variant="outline" className="button secondary" onClick={onExport}><ArrowDownToLine size={15}/> 导出</Button></div><div className="settings-divider"/><div className="settings-row"><div className="settings-icon"><Upload size={21}/></div><div><h3>从备份恢复</h3><p>支持普通与加密备份。先预览，再选择合并或替换。</p></div><Button variant="outline" className="button secondary" onClick={onImport}><Upload size={15}/> 导入</Button></div></section><section className="settings-panel"><div className="settings-row"><div className="settings-icon"><Sparkles size={21}/></div><div><h3>示例数据</h3><p>当前有 {entries.filter(e=>e.demo).length} 条示例。清除不会影响自己添加的记录。</p></div><Button variant="outline" className="button secondary" disabled={!entries.some(e=>e.demo)} onClick={onClearDemo}>清除示例</Button></div><div className="settings-divider"/><div className="settings-row"><div className="settings-icon danger"><Trash2 size={21}/></div><div><h3>清空卡包</h3><p>删除当前卡包中的所有记录，请先备份。</p></div><Button variant="ghost" className="button ghost danger" disabled={!entries.length} onClick={onClear}>清空数据</Button></div></section><section className="settings-panel source-panel"><BookOpen size={20}/><div><h3>关于卡面与设计参考</h3><p>内置 {catalog.length} 张公开卡面，来源于发卡机构、运营商、零售商的公开页面与 <a href="https://card.lengziyu.cn/cards" target="_blank" rel="noreferrer">CardFi 集卡</a>，每张卡面保留独立来源链接。商标与卡面版权归各自权利人，收录不代表合作、背书或当前可申请状态。</p></div></section></div>;
+  return <div className="settings-page">
+    <div className="settings-list">
+      {settingsPanel}
+      <section className="settings-panel">
+        <div className="settings-row">
+          <div className="settings-icon"><Database size={21}/></div>
+          <div><h3>卡包存储</h3><p>{entries.length} 条记录 · 约 {size} KB · {local?'保存在本机文件夹':'云端保存，登录后跨设备读取'}</p></div>
+          <span className="status-tag">{encrypted?'已加密':'未加密'}</span>
+        </div>
+      </section>
+      <section className="settings-panel">
+        <div className="settings-row">
+          <div className="settings-icon"><LockKeyhole size={21}/></div>
+          <div><h3>密码加密</h3><p>{encrypted?'AES-GCM 加密，切换后台或闲置 5 分钟后自动锁定。':'保存前在当前设备加密。密码不会上传，遗失后无法找回。'}</p></div>
+          <Button variant="outline" className="button secondary" onClick={encrypted?onLock:onEncrypt}>{encrypted?'立即锁定':'开启加密'}<ArrowRight size={14}/></Button>
+        </div>
+      </section>
+      {webdavPanel}
+      <section className="settings-panel">
+        <div className="settings-row">
+          <div className="settings-icon"><Download size={21}/></div>
+          <div><h3>导出备份</h3><p>{encrypted?'导出全部记录和自定义卡面，备份保持加密。':'导出全部记录和自定义卡面，JSON 备份含明文资料。'}</p></div>
+          <Button variant="outline" className="button secondary" onClick={onExport}><ArrowDownToLine size={15}/> 导出</Button>
+        </div>
+      </section>
+      <section className="settings-panel">
+        <div className="settings-row">
+          <div className="settings-icon"><Upload size={21}/></div>
+          <div><h3>从备份恢复</h3><p>支持普通与加密备份。先预览，再选择合并或替换。</p></div>
+          <Button variant="outline" className="button secondary" onClick={onImport}><Upload size={15}/> 导入</Button>
+        </div>
+      </section>
+      <section className="settings-panel">
+        <div className="settings-row">
+          <div className="settings-icon"><Sparkles size={21}/></div>
+          <div><h3>示例数据</h3><p>{entries.filter(e=>e.demo).length} 条示例，清除不影响自己添加的记录。</p></div>
+          <Button variant="outline" className="button secondary" disabled={!entries.some(e=>e.demo)} onClick={onClearDemo}>清除示例</Button>
+        </div>
+      </section>
+      <section className="settings-panel">
+        <div className="settings-row">
+          <div className="settings-icon danger"><Trash2 size={21}/></div>
+          <div><h3>清空卡包</h3><p>删除当前卡包中的所有记录，请先备份。</p></div>
+          <Button variant="ghost" className="button ghost danger" disabled={!entries.length} onClick={onClear}>清空数据</Button>
+        </div>
+      </section>
+    </div>
+    <details className="settings-source">
+      <summary><BookOpen size={16}/>关于卡面与设计参考</summary>
+      <p>内置 {catalog.length} 张公开卡面，来源于发卡机构、运营商、零售商的公开页面与 <a href="https://card.lengziyu.cn/cards" target="_blank" rel="noreferrer">CardFi 集卡</a>，每张卡面保留独立来源链接。商标与卡面版权归各自权利人，收录不代表合作、背书或当前可申请状态。</p>
+    </details>
+  </div>;
 }
 
 function PasswordModal({onClose,onSubmit}:{onClose:()=>void;onSubmit:(password:string)=>Promise<void>}){
@@ -215,9 +271,10 @@ function UnlockScreen({onUnlock,onExport,onLogout,local=false}:{local?:boolean;o
   const submit=async(e:FormEvent)=>{e.preventDefault();setBusy(true);setError('');try{await onUnlock(password);}catch(err){setError((err as Error).message);}finally{setBusy(false);}};
   return <div className="lock-screen"><div className="lock-panel"><Brand/><div className="lock-illustration"><LockKeyhole size={33}/></div><h1>欢迎回到你的卡包</h1><p>卡包已加密。输入加密密码，继续你的收藏。</p><form onSubmit={submit}><label className="sr-only" htmlFor="unlock-password">解锁密码</label><Input id="unlock-password" type="password" autoFocus required autoComplete="current-password" placeholder="输入卡包密码" value={password} onChange={e=>setPassword(e.target.value)}/>{error&&<div className="error-message" role="alert">{error}</div>}<Button variant="default" className="button primary full-width" disabled={busy}>{busy?'正在解锁…':'解锁卡包'}<ArrowRight size={17}/></Button></form><button className="text-link" onClick={onExport}><Download size={14}/> 下载加密备份</button><button className="text-link" onClick={async()=>{try{await onLogout();}catch(err){setError((err as Error).message);}}}>{local?'关闭窗口':'退出账号'}</button><span className="tiny muted">加密密码不会上传，也无法找回。</span></div></div>;
 }
-function ImportModal({onClose,current,onImport,recovery=false}:{onClose:()=>void;current:Wallet;onImport:(wallet:Wallet)=>Promise<void>;recovery?:boolean}){
+function ImportModal({onClose,current,onImport,recovery=false,source,targetEncrypted=false}:{onClose:()=>void;current:Wallet;onImport:(wallet:Wallet)=>Promise<void>;recovery?:boolean;source?:{raw:string;name:string};targetEncrypted?:boolean}){
   const [parsed,setParsed]=useState<Wallet|null>(null),[envelope,setEnvelope]=useState<EncryptedWallet|null>(null),[password,setPassword]=useState(''),[error,setError]=useState(''),[mode,setMode]=useState(recovery?'replace':'merge'),[busy,setBusy]=useState(false),[filename,setFilename]=useState('');
+  useEffect(()=>{if(!source)return;setFilename(source.name);try{const value=validateDavBackup(source.raw);if(isEncrypted(value))setEnvelope(value);else setParsed(value);}catch(err){setError((err as Error).message);}},[source]);
   const read=async(file?:File)=>{setParsed(null);setEnvelope(null);setError('');setPassword('');setFilename(file?.name||'');if(!file)return;try{if(file.size>MAX_BACKUP_BYTES)throw new Error('备份文件不能超过 12 MB。');const input:unknown=JSON.parse(await file.text());if(isEncrypted(input))setEnvelope(input);else setParsed(validateWallet(input));}catch(err){setError(err instanceof SyntaxError?'这不是有效的 JSON 备份文件。':(err as Error).message);}};
   const duplicateCount=parsed?.entries.filter(e=>current.entries.some(c=>c.id===e.id)).length||0;
-  return <Modal title="从备份恢复" subtitle="选择文件并预览，确认后保存到当前卡包。" onClose={onClose}><div className="import-body"><label className="import-drop"><Upload size={28}/><strong>{filename||'选择 Folio 备份文件'}</strong><span>JSON · 最大 12 MB · 支持加密备份</span><input type="file" accept="application/json,.json" aria-label="选择备份文件" onChange={e=>read(e.target.files?.[0])}/></label>{envelope&&!parsed&&<form className="password-form" onSubmit={async e=>{e.preventDefault();setBusy(true);setError('');try{setParsed((await decryptWallet(envelope,password)).wallet);setPassword('');}catch(err){setError((err as Error).message);}finally{setBusy(false);}}}><label>备份密码<Input type="password" required value={password} onChange={e=>setPassword(e.target.value)}/></label><Button variant="outline" className="button secondary" disabled={busy}>解密并预览</Button></form>}{parsed&&<div className="import-preview"><h3><Check size={18}/> 已读取 {parsed.entries.length} 条记录</h3><div className="import-counts">{(Object.keys(typeLabels) as ItemType[]).map(type=><span key={type}>{typeLabels[type]} <b>{parsed.entries.filter(e=>e.type===type).length}</b></span>)}</div><label className="radio-option"><input type="radio" name="import-mode" value="merge" checked={mode==='merge'} disabled={recovery} onChange={()=>setMode('merge')}/><span><strong>合并到当前卡包</strong><small>保留现有记录，跳过 {duplicateCount} 条相同 ID 的记录。</small></span></label><label className="radio-option"><input type="radio" name="import-mode" value="replace" checked={mode==='replace'} onChange={()=>setMode('replace')}/><span><strong>替换当前卡包</strong><small>{recovery?'将覆盖无法读取的数据，请先下载原始备份。':`将替换当前 ${current.entries.length} 条记录，此操作无法撤销。`}</small></span></label>{recovery&&<p className="notice">恢复后的数据以明文保存。恢复完成后可重新开启密码加密。</p>}</div>}{error&&<div className="error-message" role="alert">{error}</div>}</div><div className="modal-actions"><Button variant="outline" className="button secondary" onClick={onClose}>取消</Button><Button variant="default" className="button primary" disabled={!parsed||busy} onClick={async()=>{if(!parsed)return;setBusy(true);setError('');try{await onImport(mode==='merge'?mergeWallets(current,parsed):parsed);}catch(err){setError((err as Error).message);}finally{setBusy(false);}}}>{busy?'正在导入…':'确认导入'}</Button></div></Modal>;
+  return <Modal title={source?"拉取远程备份":"从备份恢复"} subtitle={source?"预览后确认导入，只修改当前卡包。":"选择文件并预览，确认后保存到当前卡包。"} onClose={()=>{if(!busy)onClose();}}><div className="import-body">{source&&<p className="notice">已读取 {source.name}，尚未修改当前卡包。</p>}{!source&&<label className="import-drop"><Upload size={28}/><strong>{filename||'选择 Folio 备份文件'}</strong><span>JSON · 最大 12 MB · 支持加密备份</span><input type="file" accept="application/json,.json" aria-label="选择备份文件" disabled={busy} onChange={e=>read(e.target.files?.[0])}/></label>}{envelope&&!parsed&&<form className="password-form" onSubmit={async e=>{e.preventDefault();setBusy(true);setError('');try{setParsed((await decryptWallet(envelope,password)).wallet);setPassword('');}catch(err){setError((err as Error).message);}finally{setBusy(false);}}}><label>备份密码<Input type="password" required value={password} onChange={e=>setPassword(e.target.value)}/></label><Button variant="outline" className="button secondary" disabled={busy}>解密并预览</Button></form>}{parsed&&<div className="import-preview"><h3><Check size={18}/> 已读取 {parsed.entries.length} 条记录</h3><div className="import-counts">{(Object.keys(typeLabels) as ItemType[]).map(type=><span key={type}>{typeLabels[type]} <b>{parsed.entries.filter(e=>e.type===type).length}</b></span>)}</div>{source&&envelope&&!targetEncrypted&&<p className="notice">当前卡包未开启加密。导入后会按当前设置以明文保存；可取消并先开启卡包加密。</p>}<label className="radio-option"><input type="radio" name="import-mode" value="merge" checked={mode==='merge'} disabled={recovery||busy} onChange={()=>setMode('merge')}/><span><strong>合并到当前卡包</strong><small>只添加新记录，保留现有内容，跳过 {duplicateCount} 条相同 ID 的记录。要同步已有记录的修改，请选择替换。</small></span></label><label className="radio-option"><input type="radio" name="import-mode" value="replace" checked={mode==='replace'} disabled={busy} onChange={()=>setMode('replace')}/><span><strong>替换当前卡包</strong><small>{recovery?'将覆盖无法读取的数据，请先下载原始备份。':`将替换当前 ${current.entries.length} 条记录，此操作无法撤销。`}</small></span></label>{recovery&&<p className="notice">恢复后的数据以明文保存。恢复完成后可重新开启密码加密。</p>}</div>}{error&&<div className="error-message" role="alert">{error}</div>}</div><div className="modal-actions"><Button variant="outline" className="button secondary" disabled={busy} onClick={onClose}>取消</Button><Button variant="default" className="button primary" disabled={!parsed||busy} onClick={async()=>{if(!parsed)return;setBusy(true);setError('');try{await onImport(mode==='merge'?mergeWallets(current,parsed):parsed);}catch(err){setError((err as Error).message);}finally{setBusy(false);}}}>{busy?'正在导入…':'确认导入'}</Button></div></Modal>;
 }

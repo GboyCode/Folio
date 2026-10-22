@@ -1,5 +1,6 @@
 mod preferences;
 mod store;
+mod webdav;
 
 use preferences::{CloseBehavior, PreferenceStore, Profile};
 use serde_json::{json, Value};
@@ -329,6 +330,7 @@ pub fn run() {
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
+            webdav::webdav_request,
             load_wallet,
             save_wallet,
             choose_data_directory,

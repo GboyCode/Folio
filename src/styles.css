@@ -105,3 +105,52 @@ html::-webkit-scrollbar{display:none}
 
 .detail-map-link{display:inline-flex;align-items:center;gap:4px;white-space:nowrap;color:var(--foreground);text-underline-offset:3px}
 .detail-map-link:hover{text-decoration:underline}
+/* WebDAV settings share the existing quiet settings layout. */
+.webdav-panel { margin-bottom: 16px; }
+.webdav-form-body { padding: 20px 24px; }
+.webdav-form-body .error-message { margin: 12px 0 0; }
+.webdav-fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; border: 0; padding: 0; margin: 0 0 12px; min-width: 0; }
+.webdav-fields label { display: grid; gap: 7px; font-size: 13px; min-width: 0; }
+.webdav-address { grid-column: 1 / -1; }
+.webdav-fields input { width: 100%; min-width: 0; }
+.webdav-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-left: auto; }
+.webdav-status { margin: 10px 0 0 48px; }
+@media (max-width: 640px) {
+  .webdav-form-body { padding: 18px; }
+  .webdav-fields { grid-template-columns: minmax(0, 1fr); }
+  .webdav-row { flex-wrap: wrap; }
+  .webdav-row > div:nth-child(2) { flex: 1; }
+  .webdav-actions { width: 100%; margin-left: 0; justify-content: flex-end; }
+  .webdav-status { margin-left: 0; }
+}
+
+/* Data privacy uses one list, with a shared rhythm for every setting. */
+.settings-list { border: 1px solid var(--border); border-radius: 8px; background: var(--background); }
+.settings-list > .settings-panel { border: 0; border-radius: 0; padding: 16px 20px; margin: 0; background: transparent; }
+.settings-list > .settings-panel + .settings-panel { border-top: 1px solid var(--border); }
+.settings-list .settings-row { display: grid; grid-template-columns: 35px minmax(0, 1fr) auto; align-items: center; gap: 14px; min-height: 50px; }
+.settings-list .settings-row > div:nth-child(2) { min-width: 0; }
+.settings-list .settings-row h3 { overflow-wrap: anywhere; }
+.settings-list .settings-row p { margin-top: 3px; }
+.settings-list .settings-row > [data-slot=button] { margin: 0; justify-self: end; }
+.settings-list .settings-actions, .settings-list .webdav-actions { display: flex; align-items: center; justify-content: flex-end; gap: 8px; margin: 0; width: auto; }
+.settings-list .status-tag { margin: 0; justify-self: end; white-space: nowrap; }
+.settings-list .webdav-status, .settings-list > .settings-panel > .error-message { margin: 10px 0 0 49px; }
+.settings-list .desktop-path { margin: 8px 0 0 49px; padding: 0; border: 0; border-radius: 0; background: transparent; }
+.settings-source { margin: 18px 20px 0; color: var(--muted-foreground); font-size: var(--text-caption); line-height: var(--leading-caption); }
+.settings-source summary { display: flex; align-items: center; gap: 8px; width: fit-content; padding: 4px 0; cursor: pointer; list-style: none; }
+.settings-source summary::-webkit-details-marker { display: none; }
+.settings-source summary::after { content: '+'; margin-left: 4px; }
+.settings-source[open] summary::after { content: '−'; }
+.settings-source p { margin: 8px 0 0 24px; }
+.settings-source a { text-decoration: underline; text-underline-offset: 3px; }
+@media (max-width: 640px) {
+  .settings-list > .settings-panel { padding: 16px; }
+  .settings-list .settings-row { grid-template-columns: 35px minmax(0, 1fr); gap: 10px 12px; }
+  .settings-list .settings-row > [data-slot=button], .settings-list .settings-actions, .settings-list .webdav-actions, .settings-list .status-tag { grid-column: 2; justify-self: start; }
+  .settings-list .settings-actions, .settings-list .webdav-actions { justify-content: flex-start; flex-wrap: wrap; }
+  .settings-list .webdav-status, .settings-list > .settings-panel > .error-message, .settings-list .desktop-path { margin-left: 47px; }
+  .settings-list .desktop-path { align-items: flex-start; flex-wrap: wrap; gap: 8px; }
+  .settings-list .desktop-path code { flex-basis: 100%; }
+  .settings-source { margin: 14px 16px 0; }
+}
